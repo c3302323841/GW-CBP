@@ -51,7 +51,7 @@ c = 3e8 * L_dimension / T_dimension  # m/s
 d = 2062650000 * 1.496e11 * L_dimension  # 源光度距离
 R_earth = 1 * 1.496e11 * L_dimension  # 地球半径
 P_earth = 1 * 31536000 * T_dimension  # 地球公转周期
-# f = 0.01 / T_dimension  # 引力波频率（10 mHz）s-1
+# fisher = 0.01 / T_dimension  # 引力波频率（10 mHz）s-1
 f = 0.01 / T_dimension  # ######################################################################################################################
 T_obs = 4 * 31536000 * T_dimension  # 观测周期
 # 功率谱密度
