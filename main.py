@@ -31,13 +31,13 @@ R_earth = 1.496e11 * L_dimension  # 地球半径
 P_earth = 31536000 * T_dimension  # 地球公转周期
 year = 31536000 * T_dimension
 # 参数设定———————————————————————————————————————————————————————————————————————————————————————————————————————
-f = 0.01 / T_dimension  # 引力波频率（10 mHz）s-1
+f = 0.0075 / T_dimension  # 引力波频率（10 mHz）s-1
 T_obs = 4 * 31536000 * T_dimension  # 观测周期
 M_b = 1 * M_sun
 
-na = 14  # x轴的P的数量
-nb = 1000  # 寻找最小Mp的上限
-nc = 1
+p_na = 14  # x轴的P的数量
+p_nb = 200  # 寻找最小Mp的上限
+p_nc = 1
 # nc: tianqin is 1, taiji ji 2, lisa is 3, tianqin + taiji is 4 tianqin + lisa is 5,
 # lisa +taiji is 6, three is 7
 # 常数——————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -1717,17 +1717,17 @@ def find_m_p(na, nb, nc):
                 break
     return P_x, M_p_y, detector
 
-P = find_m_p(na, nb, nc)[0]
-M_p = find_m_p(na, nb, nc)[1]
-detector = find_m_p(na, nb, nc)[2]
-# 画质量周期图
-plt.plot(P, M_p, marker='o')
-plt.xlabel('periodic of exoplanet  [year] log')
-plt.ylabel('planetary mass [Mj] log')
-plt.title(detector + ' 5 mHz T = 4 year Mb = 1 Msun')
-plt.axvline(x=0, linestyle=":", color="m")
-plt.show(block=True)
-print(P, M_p)
+# P = find_m_p(na, nb, nc)[0]
+# M_p = find_m_p(na, nb, nc)[1]
+# detector = find_m_p(na, nb, nc)[2]
+print(find_m_p(p_na, p_nb, p_nc))
+# # 画质量周期图
+# plt.plot(P, M_p, marker='o')
+# plt.xlabel('periodic of exoplanet  [year] log')
+# plt.ylabel('planetary mass [Mj] log')
+# plt.title(detector + ' 5 mHz T = 4 year Mb = 1 Msun')
+# plt.axvline(x=0, linestyle=":", color="m")
+# plt.show(block=True)
 
 # # 准备数据
 # dataR_x = pd.DataFrame(R_x)  # 关键1，将ndarray格式转换为DataFrame
