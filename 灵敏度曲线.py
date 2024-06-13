@@ -55,7 +55,9 @@ def LISA_S_n(f):
 
     S_c=9e-45*f**(-7/3)*math.exp(-f**a1+a2*f*math.sin(a3*f))*(1+math.tanh(a4*(f_k-f)))
 
-    S_n = 10 / 3 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
+    # S_n = 10 / 3 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
+    #             1 + 6 / 10 * (f / f_xing) ** 2)+S_c
+    S_n = 0.5 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
                 1 + 6 / 10 * (f / f_xing) ** 2)+S_c
     return math.sqrt(S_n)
 
@@ -72,7 +74,9 @@ def Taiji_S_n(f):
     # a1, a2, a3, a4, f_k = [0.133, 243, 482, 917, 0.00258]  # 0.5year
 
     S_c = 9e-45 * f ** (-7 / 3) * math.exp(-f**a1 + a2 * f * math.sin(a3 * f)) * (1 + math.tanh(a4 * (f_k - f)))
-    S_n = 10 / 3 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
+    # S_n = 10 / 3 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
+    #         1 + 6 / 10 * (f / f_xing) ** 2)+S_c
+    S_n = 0.5 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
             1 + 6 / 10 * (f / f_xing) ** 2)+S_c
     return math.sqrt(S_n)
     # S_n = (4 * S_a * (1 + 1e-4 / f) / math.pow(2 * math.pi * f, 4) + S_x) / math.pow(L, 2)
