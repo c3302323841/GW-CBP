@@ -3,7 +3,8 @@ import numpy as np
 from scipy import linalg
 from scipy import integrate
 import matplotlib
-import matplotlib.pyplot as plt
+
+# import matplotlib.pyplot as plt
 
 # import pandas as pd
 # 切换为图形界面显示的终端TkAgg
@@ -31,15 +32,15 @@ R_earth = 1.496e11 * L_dimension  # 地球半径
 P_earth = 31536000 * T_dimension  # 地球公转周期
 year = 31536000 * T_dimension
 # 参数设定———————————————————————————————————————————————————————————————————————————————————————————————————————
-f = 0.005 / T_dimension  # 引力波频率（10 mHz）s-1
+f = 0.01 / T_dimension  # 引力波频率（10 mHz）s-1
 T_obs = 4 * 31536000 * T_dimension  # 观测周期
 M_b = 1 * M_sun
 
-p_na = 20  # x轴的P的数量
+p_na = 16  # x轴的P的数量
 p_nb = 200  # 寻找最小Mp的上限
 p_nc = 2
 # nc: tianqin is 1, taiji ji 2, lisa is 3, tianqin + taiji is 4 tianqin + lisa is 5,
-# lisa +taiji is 6, three is 7
+# lisa +taiji is 6, three is 7, decigo is 8, bbo is 9, two is 10
 # 常数——————————————————————————————————————————————————————————————————————————————————————————————————————————
 psi_0 = 0  # rad 康亚城设定的常数,观测者初相位
 phi_0 = math.pi / 2  # 源轨道初相位
@@ -50,35 +51,11 @@ phi_l = 4  # 轨道坐标
 MM = math.pow(0.25 * M_b * M_b, 3 / 5) / math.pow(M_b, 0.2)  # 啁啾质量
 f_dao = 96 / 5 * math.pow(G * MM / math.pow(c, 3), 5 / 3) * math.pow(math.pi, 8 / 3) * math.pow(f, 11 / 3)
 # 功率谱密度—————————————————————————————————————————————————————————————————————————————————————————————————————
-# l_tian_qin = math.pow(3, 0.5) * 1e8 * L_dimension  # m
-# f_tian_qin = c / (2 * math.pi * l_tian_qin)
-# s_n_tianqin = 10 / 3 / l_tian_qin ** 2 * (
-#         (1e-24 * L_dimension ** 2 * T_dimension) + 4 * (1e-30 * L_dimension ** 2 / T_dimension ** 3) / (
-#         2 * math.pi * f / T_dimension) ** 4 * (1 + 1e-4 / f)) * (1 + 6 / 10 * (f / f_tian_qin) ** 2)
-# p_oms_lisa = 1.5e-11 ** 2 * (1 + (0.002 / T_dimension / f) ** 4) * L_dimension ** 2 * T_dimension
-# p_acc_lisa = 3e-15 ** 2 * (1 + (0.0004 / T_dimension / f) ** 2) * (
-#         1 + (f / 0.008 / T_dimension) ** 4) * L_dimension ** 2 / T_dimension ** 3
-# l_lisa = 2.5e9 * L_dimension
-# f_lisa = 0.01909 / T_dimension
-# s_n_lisa = 10 / 3 / l_lisa ** 2 * (
-#         p_oms_lisa + 2 * (1 + (math.cos(f / f_lisa)) ** 2) * p_acc_lisa / (2 * math.pi * f) ** 4) * (
-#                    1 + 6 / 10 * (f * f_lisa) ** 2)
-# p_oms_taiji = 8e-12 ** 2 * (1 + (0.002 / T_dimension / f) ** 4) * L_dimension ** 2 * T_dimension
-# p_acc_taiji = 3e-15 ** 2 * (1 + (0.0004 / T_dimension / f) ** 2) * (
-#         1 + (f / 0.008 / T_dimension) ** 4) * L_dimension ** 2 / T_dimension ** 3
-# l_taiji = 3e9 * L_dimension
-# f_taiji = c / (2 * math.pi * l_taiji)
-# s_n_taiji = 10 / 3 / l_taiji ** 2 * (
-#         p_oms_taiji + 2 * (1 + (math.cos(f / f_taiji)) ** 2) * p_acc_taiji / (2 * math.pi * f) ** 4) * (
-#                     1 + 6 / 10 * (f * f_taiji) ** 2)
-# f_decigo = 7.36
-# s_n_decigo = (3 / 4 * 7.05e-48 * (1 + (f / f_decigo) ** 2) + (4.8E-51 * f ** (-4)) / (
-#         1 + (f / f_decigo) ** 2) + 5.33E-52 * f ** (-4))
-# s_n_bbo = 2e-49 * f ** 2 + 4.58e-49 + 1.26e-51 * f ** (-4) * 3 / 4
+# TianQin
 def TianQin_S_n(f):
     L = math.pow(3, 0.5) * 1e8 * L_dimension  # m
     f_xing = c / (2 * math.pi * L)
-    S_n = 20 / 3 / L ** 2 * (
+    S_n = 1 / L ** 2 * (
                 1e-24 + 4 * 1e-30 / (2 * math.pi * f) ** 4 * (1 + 1e-4 / f)) * (1 + 6 / 10 * (f / f_xing) ** 2)  # 全天平均
     # S_a = 1e-30 * L_dimension ** 2 / T_dimension ** 3  # m^2*s^-4*Hz^-1
     # S_x = 1e-24 * L_dimension ** 2 / T_dimension ** 3  # m^2*s^-4*Hz^-1
@@ -101,8 +78,8 @@ def LISA_S_n(f):
 
     S_c=9e-45*f**(-7/3)*math.exp(-f**a1+a2*f*math.sin(a3*f))*(1+math.tanh(a4*(f_k-f)))
 
-    S_n = 10 / 3 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
-                1 + 6 / 10 * (f / f_xing) ** 2)+S_c
+    S_n = 1 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
+                1 + 6 / 10 * (f / f_xing) ** 2)
     return S_n
 
 # Taiji
@@ -118,8 +95,8 @@ def Taiji_S_n(f):
     # a1, a2, a3, a4, f_k = [0.133, 243, 482, 917, 0.00258]  # 0.5year
 
     S_c = 9e-45 * f ** (-7 / 3) * math.exp(-f**a1 + a2 * f * math.sin(a3 * f)) * (1 + math.tanh(a4 * (f_k - f)))
-    S_n = 10 / 3 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
-            1 + 6 / 10 * (f / f_xing) ** 2)+S_c
+    S_n = 1 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
+            1 + 6 / 10 * (f / f_xing) ** 2)
     return S_n
     # S_n = (4 * S_a * (1 + 1e-4 / f) / math.pow(2 * math.pi * f, 4) + S_x) / math.pow(L, 2)
 
@@ -143,7 +120,6 @@ s_n_taiji = Taiji_S_n(f)
 s_n_decigo = DECIGO_S_n(f)
 s_n_bbo = BBO_S_n(f)
 
-
 # fisher矩阵构造————————————————————————————————————————————————————————————————————————————————————————————————
 def fisher1(p_S_n_ni, p_P, p_M_p):
     # n1,h2构造————————————————————————————————————————————————————————————————————————————————————————————————
@@ -163,7 +139,6 @@ def fisher1(p_S_n_ni, p_P, p_M_p):
 
     K = math.pow(2 * math.pi * G / p_P, 1 / 3) * p_M_p / math.pow(p_M_p + M_b, 2 / 3) * math.sin(
         i(theta_l, phi_l, theta_s_h, phi_s_h))
-
 
     def F1_jia(p_theta_s, p_phi_s, p_psi_s):
         return 0.5 * (1 + math.cos(p_theta_s) * math.cos(p_theta_s)) * math.cos(2 * p_phi_s) * math.cos(
@@ -817,18 +792,26 @@ def fisher1(p_S_n_ni, p_P, p_M_p):
 
 def fisher2(p_S_n_ni, p_P, p_M_p):
     # 定义函数以获得h1,h2-------------------------------------------------------------------------------------------------
-    def psi_s(t, p_theta_s_h, p_phi_s_h, p_theta_l, p_phi_l):
-        return math.atan((0.5 * math.cos(p_theta_l) - math.sqrt(3) / 2 * math.sin(p_theta_l) * math.cos(
-            2 * math.pi * t / p_P + phi_0 - p_phi_l)
-                          - (math.cos(p_theta_l) * math.cos(p_theta_s_h) - math.sin(p_theta_l) * math.sin(
-                    p_theta_s_h) * math.cos(p_phi_l - p_phi_s_h))) /
-                         (0.5 * math.sin(p_theta_l) * math.sin(p_theta_s_h) * math.sin(p_phi_l - p_phi_s_h) -
-                          math.sqrt(3) / 2 * math.cos(2 * math.pi * t / p_P + phi_0) * (
-                                  math.cos(p_theta_l) * math.sin(p_theta_s_h) * math.sin(p_phi_s_h) - math.cos(
-                              p_theta_s_h) * math.sin(p_theta_l) * math.sin(p_phi_l)) -
-                          math.sqrt(3) / 2 * math.cos(2 * math.pi * t / p_P + phi_0) * (
-                                  math.cos(p_theta_s_h) * math.sin(p_theta_l) * math.cos(p_phi_l) - math.cos(
-                              p_theta_l) * math.sin(p_theta_s_h) * math.sin(p_phi_s_h))))
+    # def psi_s(t, p_theta_s_h, p_phi_s_h, p_theta_l, p_phi_l):
+    #     return math.atan((0.5 * math.cos(p_theta_l) - math.sqrt(3) / 2 * math.sin(p_theta_l) * math.cos(
+    #         2 * math.pi * t / p_P + phi_0 - p_phi_l)
+    #                       - (math.cos(p_theta_l) * math.cos(p_theta_s_h) - math.sin(p_theta_l) * math.sin(
+    #                 p_theta_s_h) * math.cos(p_phi_l - p_phi_s_h))) /
+    #                      (0.5 * math.sin(p_theta_l) * math.sin(p_theta_s_h) * math.sin(p_phi_l - p_phi_s_h) -
+    #                       math.sqrt(3) / 2 * math.cos(2 * math.pi * t / p_P + phi_0) * (
+    #                               math.cos(p_theta_l) * math.sin(p_theta_s_h) * math.sin(p_phi_s_h) - math.cos(
+    #                           p_theta_s_h) * math.sin(p_theta_l) * math.sin(p_phi_l)) -
+    #                       math.sqrt(3) / 2 * math.cos(2 * math.pi * t / p_P + phi_0) * (
+    #                               math.cos(p_theta_s_h) * math.sin(p_theta_l) * math.cos(p_phi_l) - math.cos(
+    #                           p_theta_l) * math.sin(p_theta_s_h) * math.sin(p_phi_s_h))))
+    #
+    # def i(p_theta_l, p_phi_l, p_theta_s, p_phi_s):
+    #     return math.cos(p_theta_l) * math.cos(p_theta_s) + math.sin(p_theta_l) * math.sin(
+    #         p_theta_s) * math.cos(p_phi_l - p_phi_s)
+
+    def psi_s(t, p_theta_l, p_phi_l, p_theta_s, p_phi_s):
+        return math.atan((math.cos(p_theta_s) * math.cos(p_phi_s - p_phi_l) * math.sin(p_theta_l) - math.cos(
+            p_theta_l) * math.sin(p_theta_s)) / (math.sin(p_theta_l) * math.sin(p_phi_s - p_phi_l)))
 
     def i(p_theta_l, p_phi_l, p_theta_s, p_phi_s):
         return math.cos(p_theta_l) * math.cos(p_theta_s) + math.sin(p_theta_l) * math.sin(
@@ -839,35 +822,55 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
                                                                          , 2 / 3) * math.sin(
             p_i)
 
-    def theta_s(t, p_theta_s_h, p_phi_s_h):
-        return math.acos(
-            0.5 * math.cos(p_theta_s_h) - 0.5 * pow(3, 0.5) * math.sin(p_theta_s_h) * math.cos(
-                fi_t(t) - p_phi_s_h))
+    # def theta_s(t, p_theta_s_h, p_phi_s_h):
+    #     return math.acos(
+    #         0.5 * math.cos(p_theta_s_h) - 0.5 * pow(3, 0.5) * math.sin(p_theta_s_h) * math.cos(
+    #             fi_t(t) - p_phi_s_h))
+    #
+    # def phi_s(t, p_theta_s_h, p_phi_s_h):
+    #     return 2 * math.pi * t / P_earth - math.atan(
+    #         (pow(3, 0.5) * math.cos(p_theta_s_h) + math.sin(p_theta_s_h) * math.cos(fi_t(t) - p_phi_s_h)) / (
+    #                 2 * math.sin(p_theta_s_h) * math.cos(fi_t(t) - p_phi_s_h)))
 
-    def phi_s(t, p_theta_s_h, p_phi_s_h):
-        return 2 * math.pi * t / P_earth - math.atan(
-            (pow(3, 0.5) * math.cos(p_theta_s_h) + math.sin(p_theta_s_h) * math.cos(fi_t(t) - p_phi_s_h)) / (
-                    2 * math.sin(p_theta_s_h) * math.cos(fi_t(t) - p_phi_s_h)))
+    la = math.pi * 3 / 4
 
-    def F1_jia(p_theta_s, p_phi_s, p_psi_s):
-        return 0.5 * (1 + math.cos(p_theta_s) * math.cos(p_theta_s)) * math.cos(2 * p_phi_s) * math.cos(
-            2 * p_psi_s) - math.cos(
-            p_theta_s) * math.sin(2 * p_phi_s) * math.sin(2 * p_psi_s)
+    def F1_jia(t, p_theta_s_h, p_phi_s_h, p_psi_s):
+        return 0.5 * (math.cos(2 * p_psi_s) * math.pow(3, 0.5) / 64 * (
+                    -36 * math.pow(math.sin(p_theta_s_h), 2) * math.sin(2 * (2 * math.pi * t / P_earth - la)) + (
+                        3 + math.cos(p_theta_s_h * 2)) * (math.cos(2 * p_phi_s_h) * (
+                        9 * math.sin(math.pi * 3 / 2) - math.sin(2 * (2 * 2 * math.pi * t / P_earth - la)) + math.sin(
+                    2 * p_phi_s_h) * (math.cos(2 * (2 * 2 * math.pi * t / P_earth - la)) - 9 * math.cos(
+                    2 * la)))) - 4 * math.pow(3, 0.5) * (
+                                math.sin(3 * 2 * math.pi * t / P_earth - 2 * la - p_phi_s_h) - 3 * math.sin(
+                            2 * math.pi * t / P_earth - 2 * la + p_phi_s_h))) - math.sin(2 * p_psi_s) * 1 / 16 * (
+                                  math.pow(3, 0.5) * math.cos(p_theta_s_h) * (
+                                      9 * math.cos(2 * la - 2 * 2 * math.pi * t / P_earth) - math.cos(
+                                  4 * 2 * math.pi * t / P_earth - 2 * la - 2 * p_phi_s_h)) - 6 * math.sin(
+                              p_theta_s_h) * (math.cos(
+                              3 * 2 * math.pi * t / P_earth - 2 * la - p_phi_s_h) + 3 * math.cos(
+                              2 * math.pi * t / P_earth - 2 * la + p_phi_s_h))))
 
-    def F1_cha(p_theta_s, p_phi_s, p_psi_s):
-        return 0.5 * (1 + math.cos(p_theta_s) * math.cos(p_theta_s)) * math.cos(2 * p_phi_s) * math.cos(
-            2 * p_psi_s) + math.cos(
-            p_theta_s) * math.sin(2 * p_phi_s) * math.cos(2 * p_psi_s)
+    def F1_cha(t, p_theta_s_h, p_phi_s_h, p_psi_s):
+        return 0.5 * (math.sin(2 * p_psi_s) * math.pow(3, 0.5) / 64 * (
+                    -36 * math.pow(math.sin(p_theta_s_h), 2) * math.sin(2 * (2 * math.pi * t / P_earth - la)) + (
+                        3 + math.cos(p_theta_s_h * 2)) * (math.cos(2 * p_phi_s_h) * (
+                        9 * math.sin(math.pi * 3 / 2) - math.sin(2 * (2 * 2 * math.pi * t / P_earth - la)) + math.sin(
+                    2 * p_phi_s_h) * (math.cos(2 * (2 * 2 * math.pi * t / P_earth - la)) - 9 * math.cos(
+                    2 * la)))) - 4 * math.pow(3, 0.5) * (
+                                math.sin(3 * 2 * math.pi * t / P_earth - 2 * la - p_phi_s_h) - 3 * math.sin(
+                            2 * math.pi * t / P_earth - 2 * la + p_phi_s_h))) + math.cos(2 * p_psi_s) * 1 / 16 * (
+                                  math.pow(3, 0.5) * math.cos(p_theta_s_h) * (
+                                      9 * math.cos(2 * la - 2 * 2 * math.pi * t / P_earth) - math.cos(
+                                  4 * 2 * math.pi * t / P_earth - 2 * la - 2 * p_phi_s_h)) - 6 * math.sin(
+                              p_theta_s_h) * (math.cos(
+                              3 * 2 * math.pi * t / P_earth - 2 * la - p_phi_s_h) + 3 * math.cos(
+                              2 * math.pi * t / P_earth - 2 * la + p_phi_s_h))))
 
-    def F2_jia(p_theta_s, p_phi_s, p_psi_s):
-        return 0.5 * (1 + math.cos(p_theta_s) * math.cos(p_theta_s)) * math.cos(
-            2 * p_phi_s - 0.5 * math.pi) * math.cos(
-            2 * p_psi_s) - math.cos(p_theta_s) * math.sin(2 * p_phi_s - 0.5 * math.pi) * math.sin(2 * p_psi_s)
+    def F2_jia(t, p_theta_s_h, p_phi_s_h, p_psi_s):
+        return F1_jia(t, p_theta_s_h, p_phi_s_h - math.pi / 4, p_psi_s)
 
-    def F2_cha(p_theta_s, p_phi_s, p_psi_s):
-        return 0.5 * (1 + math.cos(p_theta_s) * math.cos(p_theta_s)) * math.cos(
-            2 * p_phi_s - 0.5 * math.pi) * math.cos(
-            2 * p_psi_s) + math.cos(p_theta_s) * math.sin(2 * p_phi_s - 0.5 * math.pi) * math.cos(2 * p_psi_s)
+    def F2_cha(t, p_theta_s_h, p_phi_s_h, p_psi_s):
+        return F1_cha(t, p_theta_s_h, p_phi_s_h - math.pi / 4, p_psi_s)
 
     AA = 2 * math.pow(G * MM, 5 / 3) * math.pow(math.pi * f, 2 / 3) / (math.pow(c, 4) * d)
 
@@ -877,27 +880,27 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
     def A_cha(p_i):
         return 2 * AA * math.cos(p_i)
 
-    def A1(p_i, p_theta_s, p_phi_s, p_psi_s):
+    def A1(t, p_i, p_theta_s, p_phi_s, p_psi_s):
         return math.pow(
-            math.pow(A_jia(p_i), 2) * math.pow(F1_jia(p_theta_s, p_phi_s, p_psi_s), 2) + math.pow(A_cha(p_i),
-                                                                                                  2) * math.pow(
-                F1_cha(p_theta_s, p_phi_s, p_psi_s), 2), 1 / 2)
+            math.pow(A_jia(p_i), 2) * math.pow(F1_jia(t, p_theta_s, p_phi_s, p_psi_s), 2) + math.pow(A_cha(p_i),
+                                                                                                     2) * math.pow(
+                F1_cha(t, p_theta_s, p_phi_s, p_psi_s), 2), 1 / 2)
 
-    def A2(p_i, p_theta_s, p_phi_s, p_psi_s):
+    def A2(t, p_i, p_theta_s, p_phi_s, p_psi_s):
         return math.pow(
-            math.pow(A_jia(p_i), 2) * math.pow(F2_jia(p_theta_s, p_phi_s, p_psi_s), 2) + math.pow(A_cha(p_i),
-                                                                                                  2) * math.pow(
-                F2_cha(p_theta_s, p_phi_s, p_psi_s), 2), 1 / 2)
+            math.pow(A_jia(p_i), 2) * math.pow(F2_jia(t, p_theta_s, p_phi_s, p_psi_s), 2) + math.pow(A_cha(p_i),
+                                                                                                     2) * math.pow(
+                F2_cha(t, p_theta_s, p_phi_s, p_psi_s), 2), 1 / 2)
 
-    def fi_1(p_i, p_theta_s, p_phi_s, p_psi_s):
+    def fi_1(t, p_i, p_theta_s, p_phi_s, p_psi_s):
         return math.atan(
-            -1 * A_cha(p_i) * F1_cha(p_theta_s, p_phi_s, p_psi_s) / A_jia(p_i) / F1_jia(p_theta_s, p_phi_s,
-                                                                                        p_psi_s))
+            -1 * A_cha(p_i) * F1_cha(t, p_theta_s, p_phi_s, p_psi_s) / A_jia(p_i) / F1_jia(t, p_theta_s, p_phi_s,
+                                                                                           p_psi_s))
 
-    def fi_2(p_i, p_theta_s, p_phi_s, p_psi_s):
+    def fi_2(t, p_i, p_theta_s, p_phi_s, p_psi_s):
         return math.atan(
-            -1 * A_cha(p_i) * F2_cha(p_theta_s, p_phi_s, p_psi_s) / A_jia(p_i) / F2_jia(p_theta_s, p_phi_s,
-                                                                                        p_psi_s))
+            -1 * A_cha(p_i) * F2_cha(t, p_theta_s, p_phi_s, p_psi_s) / A_jia(p_i) / F2_jia(t, p_theta_s, p_phi_s,
+                                                                                           p_psi_s))
 
     def fi_t(t):
         return 2 * math.pi * t / p_P + phi_0
@@ -916,24 +919,24 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
             fi_t(t))
 
     def h1(t):
-        return math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A1(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.cos(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
                                                                                               phi_s_h)))
 
     def h2(t):
-        return math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A2(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.cos(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(t,i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
@@ -941,24 +944,27 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
 
     def find_delta_h1_theta_s():
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h + delta, phi_s_h),
-                                              theta_s(x, theta_s_h + delta, phi_s_h),
-                                              phi_s(x, theta_s_h + delta, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A1(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h),
+                                              theta_s_h + delta,
+                                              phi_s_h,
                                               psi_s(x, theta_s_h + delta, phi_s_h, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h)) + fi_1(
-                    i(theta_l, phi_l, theta_s_h + delta, phi_s_h), theta_s(x, theta_s_h + delta, phi_s_h),
-                    phi_s(x, theta_s_h + delta, phi_s_h),
-                    psi_s(x, theta_s_h + delta, phi_s_h, theta_l, phi_l)) + fiD(
+                psi_obs(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h)) + fi_1(x, i(theta_l, phi_l, theta_s_h + delta,
+                                                                                      phi_s_h), theta_s_h + delta,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h + delta, phi_s_h,
+                                                                                       theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h - delta, phi_s_h),
-                                 theta_s(x, theta_s_h - delta, phi_s_h), phi_s(x, theta_s_h - delta, phi_s_h),
+                3, 0.5) / 2 * A1(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h),
+                                 theta_s_h - delta, phi_s_h,
                                  psi_s(x, theta_s_h - delta, phi_s_h, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)) + fi_1(
-                    i(theta_l, phi_l, theta_s_h - delta, phi_s_h), theta_s(x, theta_s_h - delta, phi_s_h),
-                    phi_s(x, theta_s_h - delta, phi_s_h),
-                    psi_s(x, theta_s_h - delta, phi_s_h, theta_l, phi_l)) + fiD(
+                psi_obs(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)) + fi_1(x, i(theta_l, phi_l, theta_s_h - delta,
+                                                                                      phi_s_h), theta_s_h - delta,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h - delta, phi_s_h,
+                                                                                       theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)))) / (
                     2 * delta)
+
         n1 = 0.01
         v3 = 1
         while v3 > 0.00001:
@@ -981,24 +987,27 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
 
     def find_delta_h1_phi_s():
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h + delta),
-                                              theta_s(x, theta_s_h, phi_s_h + delta),
-                                              phi_s(x, theta_s_h, phi_s_h + delta),
+            return (math.pow(3, 0.5) / 2 * A1(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta),
+                                              theta_s_h,
+                                              phi_s_h + delta,
                                               psi_s(x, theta_s_h, phi_s_h + delta, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta)) + fi_1(
-                    i(theta_l, phi_l, theta_s_h, phi_s_h + delta), theta_s(x, theta_s_h, phi_s_h + delta),
-                    phi_s(x, theta_s_h, phi_s_h + delta),
-                    psi_s(x, theta_s_h, phi_s_h + delta, theta_l, phi_l)) + fiD(
+                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta)) + fi_1(x, i(theta_l, phi_l, theta_s_h,
+                                                                                      phi_s_h + delta), theta_s_h,
+                                                                                 phi_s_h + delta,
+                                                                                 psi_s(x, theta_s_h, phi_s_h + delta,
+                                                                                       theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta))) - math.pow(
-                3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h - delta),
-                                 theta_s(x, theta_s_h, phi_s_h - delta), phi_s(x, theta_s_h, phi_s_h - delta),
+                3, 0.5) / 2 * A1(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta),
+                                 theta_s_h, phi_s_h - delta,
                                  psi_s(x, theta_s_h, phi_s_h - delta, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)) + fi_1(
-                    i(theta_l, phi_l, theta_s_h, phi_s_h - delta), theta_s(x, theta_s_h, phi_s_h - delta),
-                    phi_s(x, theta_s_h, phi_s_h - delta),
-                    psi_s(x, theta_s_h, phi_s_h - delta, theta_l, phi_l)) + fiD(
+                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)) + fi_1(x, i(theta_l, phi_l, theta_s_h,
+                                                                                      phi_s_h - delta), theta_s_h,
+                                                                                 phi_s_h - delta,
+                                                                                 psi_s(x, theta_s_h, phi_s_h - delta,
+                                                                                       theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)))) / (
                     2 * delta)
+
         n1 = 0.01
         v3 = 1
         while v3 > 0.00001:
@@ -1021,23 +1030,26 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
 
     def find_delta_h1_theta_l():
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A1(i(theta_l + delta, phi_l, theta_s_h, phi_s_h),
-                                              theta_s(x, theta_s_h, phi_s_h), phi_s(x, theta_s_h, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A1(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h),
+                                              theta_s_h, phi_s_h,
                                               psi_s(x, theta_s_h, phi_s_h, theta_l + delta, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h)) + fi_1(
-                    i(theta_l + delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
-                    psi_s(x, theta_s_h, phi_s_h, theta_l + delta, phi_l)) + fiD(
+                psi_obs(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h)) + fi_1(x, i(theta_l + delta, phi_l, theta_s_h,
+                                                                                      phi_s_h), theta_s_h,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h, phi_s_h,
+                                                                                       theta_l + delta, phi_l)) + fiD(
                     x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A1(i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                                 phi_s(x, theta_s_h, phi_s_h),
+                3, 0.5) / 2 * A1(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                 phi_s_h,
                                  psi_s(x, theta_s_h, phi_s_h, theta_l - delta, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)) + fi_1(
-                    i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
-                    psi_s(x, theta_s_h, phi_s_h, theta_l - delta, phi_l)) + fiD(
+                psi_obs(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)) + fi_1(x, i(theta_l - delta, phi_l, theta_s_h,
+                                                                                      phi_s_h), theta_s_h,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h, phi_s_h,
+                                                                                       theta_l - delta, phi_l)) + fiD(
                     x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)))) / (
                     2 * delta)
+
         n1 = 0.01
         v3 = 1
         while v3 > 0.00001:
@@ -1060,23 +1072,26 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
 
     def find_delta_h1_phi_l():
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l + delta, theta_s_h, phi_s_h),
-                                              theta_s(x, theta_s_h, phi_s_h), phi_s(x, theta_s_h, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A1(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h),
+                                              theta_s_h, phi_s_h,
                                               psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l + delta)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h)) + fi_1(
-                    i(theta_l, phi_l + delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
-                    psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l + delta)) + fiD(
+                psi_obs(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h)) + fi_1(x, i(theta_l, phi_l + delta, theta_s_h,
+                                                                                      phi_s_h), theta_s_h,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h, phi_s_h, theta_l,
+                                                                                       phi_l + delta)) + fiD(
                     x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A1(i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                                 phi_s(x, theta_s_h, phi_s_h),
+                3, 0.5) / 2 * A1(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s_h,
+                                 phi_s_h,
                                  psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l - delta)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)) + fi_1(
-                    i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
-                    psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l - delta)) + fiD(
+                psi_obs(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)) + fi_1(x, i(theta_l, phi_l - delta, theta_s_h,
+                                                                                      phi_s_h), theta_s_h,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h, phi_s_h, theta_l,
+                                                                                       phi_l - delta)) + fiD(
                     x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)))) / (
                     2 * delta)
+
         n1 = 0.01
         v3 = 1
         while v3 > 0.00001:
@@ -1101,24 +1116,27 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
 
     def find_delta_h2_theta_s():
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h + delta, phi_s_h),
-                                              theta_s(x, theta_s_h + delta, phi_s_h),
-                                              phi_s(x, theta_s_h + delta, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A2(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h),
+                                              theta_s_h + delta,
+                                              phi_s_h,
                                               psi_s(x, theta_s_h + delta, phi_s_h, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h)) + fi_2(
-                    i(theta_l, phi_l, theta_s_h + delta, phi_s_h), theta_s(x, theta_s_h + delta, phi_s_h),
-                    phi_s(x, theta_s_h + delta, phi_s_h),
-                    psi_s(x, theta_s_h + delta, phi_s_h, theta_l, phi_l)) + fiD(
+                psi_obs(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h)) + fi_2(x, i(theta_l, phi_l, theta_s_h + delta,
+                                                                                      phi_s_h), theta_s_h + delta,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h + delta, phi_s_h,
+                                                                                       theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h - delta, phi_s_h),
-                                 theta_s(x, theta_s_h - delta, phi_s_h), phi_s(x, theta_s_h - delta, phi_s_h),
+                3, 0.5) / 2 * A2(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h),
+                                 theta_s_h - delta, phi_s_h,
                                  psi_s(x, theta_s_h - delta, phi_s_h, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)) + fi_2(
-                    i(theta_l, phi_l, theta_s_h - delta, phi_s_h), theta_s(x, theta_s_h - delta, phi_s_h),
-                    phi_s(x, theta_s_h - delta, phi_s_h),
-                    psi_s(x, theta_s_h - delta, phi_s_h, theta_l, phi_l)) + fiD(
+                psi_obs(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)) + fi_2(x, i(theta_l, phi_l, theta_s_h - delta,
+                                                                                      phi_s_h), theta_s_h - delta,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h - delta, phi_s_h,
+                                                                                       theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)))) / (
                     2 * delta)
+
         n1 = 0.01
         v3 = 1
         while v3 > 0.00001:
@@ -1143,24 +1161,27 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
 
     def find_delta_h2_phi_s():
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h, phi_s_h + delta),
-                                              theta_s(x, theta_s_h, phi_s_h + delta),
-                                              phi_s(x, theta_s_h, phi_s_h + delta),
+            return (math.pow(3, 0.5) / 2 * A2(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta),
+                                              theta_s_h,
+                                              phi_s_h + delta,
                                               psi_s(x, theta_s_h, phi_s_h + delta, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta)) + fi_2(
-                    i(theta_l, phi_l, theta_s_h, phi_s_h + delta), theta_s(x, theta_s_h, phi_s_h + delta),
-                    phi_s(x, theta_s_h, phi_s_h + delta),
-                    psi_s(x, theta_s_h, phi_s_h + delta, theta_l, phi_l)) + fiD(
+                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta)) + fi_2(x, i(theta_l, phi_l, theta_s_h,
+                                                                                      phi_s_h + delta), theta_s_h,
+                                                                                 phi_s_h + delta,
+                                                                                 psi_s(x, theta_s_h, phi_s_h + delta,
+                                                                                       theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta))) - math.pow(
-                3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h, phi_s_h - delta),
-                                 theta_s(x, theta_s_h, phi_s_h - delta), phi_s(x, theta_s_h, phi_s_h - delta),
+                3, 0.5) / 2 * A2(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta),
+                                 theta_s_h, phi_s_h - delta,
                                  psi_s(x, theta_s_h, phi_s_h - delta, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)) + fi_2(
-                    i(theta_l, phi_l, theta_s_h, phi_s_h - delta), theta_s(x, theta_s_h, phi_s_h - delta),
-                    phi_s(x, theta_s_h, phi_s_h - delta),
-                    psi_s(x, theta_s_h, phi_s_h - delta, theta_l, phi_l)) + fiD(
+                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)) + fi_2(x, i(theta_l, phi_l, theta_s_h,
+                                                                                      phi_s_h - delta), theta_s_h,
+                                                                                 phi_s_h - delta,
+                                                                                 psi_s(x, theta_s_h, phi_s_h - delta,
+                                                                                       theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)))) / (
                     2 * delta)
+
         n1 = 0.01
         v3 = 1
         while v3 > 0.00001:
@@ -1185,23 +1206,26 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
 
     def find_delta_h2_theta_l():
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A2(i(theta_l + delta, phi_l, theta_s_h, phi_s_h),
-                                              theta_s(x, theta_s_h, phi_s_h), phi_s(x, theta_s_h, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A2(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h),
+                                              theta_s_h, phi_s_h,
                                               psi_s(x, theta_s_h, phi_s_h, theta_l + delta, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h)) + fi_2(
-                    i(theta_l + delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
-                    psi_s(x, theta_s_h, phi_s_h, theta_l + delta, phi_l)) + fiD(
+                psi_obs(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h)) + fi_2(x, i(theta_l + delta, phi_l, theta_s_h,
+                                                                                      phi_s_h), theta_s_h,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h, phi_s_h,
+                                                                                       theta_l + delta, phi_l)) + fiD(
                     x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A2(i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                                 phi_s(x, theta_s_h, phi_s_h),
+                3, 0.5) / 2 * A2(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                 phi_s_h,
                                  psi_s(x, theta_s_h, phi_s_h, theta_l - delta, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)) + fi_2(
-                    i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
-                    psi_s(x, theta_s_h, phi_s_h, theta_l - delta, phi_l)) + fiD(
+                psi_obs(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)) + fi_2(x, i(theta_l - delta, phi_l, theta_s_h,
+                                                                                      phi_s_h), theta_s_h,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h, phi_s_h,
+                                                                                       theta_l - delta, phi_l)) + fiD(
                     x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)))) / (
                     2 * delta)
+
         n1 = 0.01
         v3 = 1
         while v3 > 0.00001:
@@ -1226,23 +1250,26 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
 
     def find_delta_h2_phi_l():
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l + delta, theta_s_h, phi_s_h),
-                                              theta_s(x, theta_s_h, phi_s_h), phi_s(x, theta_s_h, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A2(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h),
+                                              theta_s_h, phi_s_h,
                                               psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l + delta)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h)) + fi_2(
-                    i(theta_l, phi_l + delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
-                    psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l + delta)) + fiD(
+                psi_obs(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h)) + fi_2(x, i(theta_l, phi_l + delta, theta_s_h,
+                                                                                      phi_s_h), theta_s_h,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h, phi_s_h, theta_l,
+                                                                                       phi_l + delta)) + fiD(
                     x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A2(i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                                 phi_s(x, theta_s_h, phi_s_h),
+                3, 0.5) / 2 * A2(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s_h,
+                                 phi_s_h,
                                  psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l - delta)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)) + fi_2(
-                    i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
-                    psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l - delta)) + fiD(
+                psi_obs(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)) + fi_2(x, i(theta_l, phi_l - delta, theta_s_h,
+                                                                                      phi_s_h), theta_s_h,
+                                                                                 phi_s_h,
+                                                                                 psi_s(x, theta_s_h, phi_s_h, theta_l,
+                                                                                       phi_l - delta)) + fiD(
                     x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)))) / (
                     2 * delta)
+
         n1 = 0.01
         v3 = 1
         while v3 > 0.00001:
@@ -1266,36 +1293,36 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
     # delta_h2_phi_l = 1e-4
     # 求偏导---------------------------------------------------------------------------------------------------------------
     def partial_h1_lnA(t):
-        return math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A1(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.cos(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
                                                                                               phi_s_h)))
 
     def partial_h1_psi_0(t):
-        return math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A1(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.sin(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
                                                                                               phi_s_h)))
 
     def partial_h1_f(t):
-        return math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A1(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.sin(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
@@ -1303,12 +1330,12 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
                 2 * math.pi * t - p_P / c * K(i(theta_l, phi_l, theta_s_h, phi_s_h)) * math.sin(fi_t(t)))
 
     def partial_h1_f_dao(t):
-        return math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A1(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.sin(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
@@ -1322,21 +1349,21 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
         h = delta_h1_theta_s
 
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h + delta, phi_s_h),
-                                              theta_s(x, theta_s_h + delta, phi_s_h),
-                                              phi_s(x, theta_s_h + delta, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A1(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h),
+                                              theta_s_h + delta,
+                                              phi_s_h,
                                               psi_s(x, theta_s_h + delta, phi_s_h, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h)) + fi_1(
-                    i(theta_l, phi_l, theta_s_h + delta, phi_s_h), theta_s(x, theta_s_h + delta, phi_s_h),
-                    phi_s(x, theta_s_h + delta, phi_s_h),
+                psi_obs(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h)) + fi_1(x,
+                    i(theta_l, phi_l, theta_s_h + delta, phi_s_h), theta_s_h + delta,
+                    phi_s_h,
                     psi_s(x, theta_s_h + delta, phi_s_h, theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h - delta, phi_s_h),
-                                 theta_s(x, theta_s_h - delta, phi_s_h), phi_s(x, theta_s_h - delta, phi_s_h),
+                3, 0.5) / 2 * A1(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h),
+                                 theta_s_h - delta, phi_s_h,
                                  psi_s(x, theta_s_h - delta, phi_s_h, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)) + fi_1(
-                    i(theta_l, phi_l, theta_s_h - delta, phi_s_h), theta_s(x, theta_s_h - delta, phi_s_h),
-                    phi_s(x, theta_s_h - delta, phi_s_h),
+                psi_obs(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)) + fi_1(x,
+                    i(theta_l, phi_l, theta_s_h - delta, phi_s_h), theta_s_h - delta,
+                    phi_s_h,
                     psi_s(x, theta_s_h - delta, phi_s_h, theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)))) / (
                     2 * delta)
@@ -1347,21 +1374,21 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
         h = delta_h1_phi_s
 
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h + delta),
-                                              theta_s(x, theta_s_h, phi_s_h + delta),
-                                              phi_s(x, theta_s_h, phi_s_h + delta),
+            return (math.pow(3, 0.5) / 2 * A1(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta),
+                                              theta_s_h,
+                                              phi_s_h + delta,
                                               psi_s(x, theta_s_h, phi_s_h + delta, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta)) + fi_1(
-                    i(theta_l, phi_l, theta_s_h, phi_s_h + delta), theta_s(x, theta_s_h, phi_s_h + delta),
-                    phi_s(x, theta_s_h, phi_s_h + delta),
+                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta)) + fi_1(x,
+                    i(theta_l, phi_l, theta_s_h, phi_s_h + delta), theta_s_h,
+                    phi_s_h + delta,
                     psi_s(x, theta_s_h, phi_s_h + delta, theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta))) - math.pow(
-                3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h - delta),
-                                 theta_s(x, theta_s_h, phi_s_h - delta), phi_s(x, theta_s_h, phi_s_h - delta),
+                3, 0.5) / 2 * A1(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta),
+                                 theta_s_h, phi_s_h - delta,
                                  psi_s(x, theta_s_h, phi_s_h - delta, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)) + fi_1(
-                    i(theta_l, phi_l, theta_s_h, phi_s_h - delta), theta_s(x, theta_s_h, phi_s_h - delta),
-                    phi_s(x, theta_s_h, phi_s_h - delta),
+                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)) + fi_1(x,
+                    i(theta_l, phi_l, theta_s_h, phi_s_h - delta), theta_s_h,
+                    phi_s_h - delta,
                     psi_s(x, theta_s_h, phi_s_h - delta, theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)))) / (
                     2 * delta)
@@ -1372,20 +1399,20 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
         h = delta_h1_theta_l
 
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A1(i(theta_l + delta, phi_l, theta_s_h, phi_s_h),
-                                              theta_s(x, theta_s_h, phi_s_h), phi_s(x, theta_s_h, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A1(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h),
+                                              theta_s_h, phi_s_h,
                                               psi_s(x, theta_s_h, phi_s_h, theta_l + delta, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h)) + fi_1(
-                    i(theta_l + delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
+                psi_obs(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h)) + fi_1(x,
+                    i(theta_l + delta, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                    phi_s_h,
                     psi_s(x, theta_s_h, phi_s_h, theta_l + delta, phi_l)) + fiD(
                     x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A1(i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                                 phi_s(x, theta_s_h, phi_s_h),
+                3, 0.5) / 2 * A1(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                 phi_s_h,
                                  psi_s(x, theta_s_h, phi_s_h, theta_l - delta, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)) + fi_1(
-                    i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
+                psi_obs(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)) + fi_1(x,
+                    i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                    phi_s_h,
                     psi_s(x, theta_s_h, phi_s_h, theta_l - delta, phi_l)) + fiD(
                     x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)))) / (
                     2 * delta)
@@ -1396,20 +1423,20 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
         h = delta_h1_phi_l
 
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l + delta, theta_s_h, phi_s_h),
-                                              theta_s(x, theta_s_h, phi_s_h), phi_s(x, theta_s_h, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A1(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h),
+                                              theta_s_h, phi_s_h,
                                               psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l + delta)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h)) + fi_1(
-                    i(theta_l, phi_l + delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
+                psi_obs(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h)) + fi_1(x,
+                    i(theta_l, phi_l + delta, theta_s_h, phi_s_h), theta_s_h,
+                    phi_s_h,
                     psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l + delta)) + fiD(
                     x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A1(i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                                 phi_s(x, theta_s_h, phi_s_h),
+                3, 0.5) / 2 * A1(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s_h,
+                                 phi_s_h,
                                  psi_s(x, theta_s_h - delta, phi_s_h, theta_l, phi_l - delta)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)) + fi_1(
-                    i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
+                psi_obs(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)) + fi_1(x,
+                    i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s_h,
+                    phi_s_h,
                     psi_s(x, theta_s_h - delta, phi_s_h, theta_l, phi_l - delta)) + fiD(
                     x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)))) / (
                     2 * delta)
@@ -1417,24 +1444,24 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
         return par_1(t, h)
 
     def partial_h1_K(t):
-        return math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A1(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.sin(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(
                 t, i(theta_l, phi_l, theta_s_h, phi_s_h))) * (-1) * p_P * f / c * math.sin(
             fi_t(t))
 
     def partial_h1_P(t):
-        return math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A1(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.sin(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
@@ -1444,52 +1471,52 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
                         c * p_P) * K(i(theta_l, phi_l, theta_s_h, phi_s_h)) * math.cos(fi_t(t)))
 
     def partial_h1_phi_0(t):
-        return math.pow(3, 0.5) / 2 * A1(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A1(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.sin(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_1(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(
                 t, i(theta_l, phi_l, theta_s_h, phi_s_h))) * (
                 (-1) * p_P * f * K(i(theta_l, phi_l, theta_s_h, phi_s_h)) / c * math.cos(
             fi_t(t)) - 2 * math.pi * f_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) * R_earth * math.sin(
-            theta_s(t, theta_s_h, phi_s_h)) * math.cos(
-            phi_0 + 2 * math.pi * t / P_earth - phi_s(t, theta_s_h, phi_s_h)) / c)
+            theta_s_h) * math.cos(
+            phi_0 + 2 * math.pi * t / P_earth - phi_s_h) / c)
 
     # h2的偏导——————————————————————————————————————————————————————————————————————————————————————————————————————————————————
     def partial_h2_lnA(t):
-        return math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A2(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.cos(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
                                                                                               phi_s_h)))
 
     def partial_h2_psi_0(t):
-        return math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A2(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.cos(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
                                                                                               phi_s_h)))
 
     def partial_h2_f(t):
-        return math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A2(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.sin(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
@@ -1497,12 +1524,12 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
                 2 * math.pi * t - p_P / c * K(i(theta_l, phi_l, theta_s_h, phi_s_h)) * math.sin(fi_t(t)))
 
     def partial_h2_f_dao(t):
-        return math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A2(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.sin(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
@@ -1516,21 +1543,21 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
         h = delta_h2_theta_s
 
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h + delta, phi_s_h),
-                                              theta_s(x, theta_s_h + delta, phi_s_h),
-                                              phi_s(x, theta_s_h + delta, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A2(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h),
+                                              theta_s_h + delta,
+                                              phi_s_h,
                                               psi_s(x, theta_s_h + delta, phi_s_h, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h)) + fi_2(
-                    i(theta_l, phi_l, theta_s_h + delta, phi_s_h), theta_s(x, theta_s_h + delta, phi_s_h),
-                    phi_s(x, theta_s_h + delta, phi_s_h),
+                psi_obs(x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h)) + fi_2(x,
+                    i(theta_l, phi_l, theta_s_h + delta, phi_s_h), theta_s_h + delta,
+                    phi_s_h,
                     psi_s(x, theta_s_h + delta, phi_s_h, theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h + delta, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h - delta, phi_s_h),
-                                 theta_s(x, theta_s_h - delta, phi_s_h), phi_s(x, theta_s_h - delta, phi_s_h),
+                3, 0.5) / 2 * A2(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h),
+                                 theta_s_h - delta, phi_s_h,
                                  psi_s(x, theta_s_h - delta, phi_s_h, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)) + fi_2(
-                    i(theta_l, phi_l, theta_s_h - delta, phi_s_h), theta_s(x, theta_s_h - delta, phi_s_h),
-                    phi_s(x, theta_s_h - delta, phi_s_h),
+                psi_obs(x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)) + fi_2(x,
+                    i(theta_l, phi_l, theta_s_h - delta, phi_s_h), theta_s_h - delta,
+                    phi_s_h,
                     psi_s(x, theta_s_h - delta, phi_s_h, theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h - delta, phi_s_h)))) / (
                     2 * delta)
@@ -1541,21 +1568,21 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
         h = delta_h2_phi_s
 
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h, phi_s_h + delta),
-                                              theta_s(x, theta_s_h, phi_s_h + delta),
-                                              phi_s(x, theta_s_h, phi_s_h + delta),
+            return (math.pow(3, 0.5) / 2 * A2(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta),
+                                              theta_s_h,
+                                              phi_s_h + delta,
                                               psi_s(x, theta_s_h, phi_s_h + delta, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta)) + fi_2(
-                    i(theta_l, phi_l, theta_s_h, phi_s_h + delta), theta_s(x, theta_s_h, phi_s_h + delta),
-                    phi_s(x, theta_s_h, phi_s_h + delta),
+                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta)) + fi_2(x,
+                    i(theta_l, phi_l, theta_s_h, phi_s_h + delta), theta_s_h,
+                    phi_s_h + delta,
                     psi_s(x, theta_s_h, phi_s_h + delta, theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h, phi_s_h + delta))) - math.pow(
-                3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h, phi_s_h - delta),
-                                 theta_s(x, theta_s_h, phi_s_h - delta), phi_s(x, theta_s_h, phi_s_h - delta),
+                3, 0.5) / 2 * A2(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta),
+                                 theta_s_h, phi_s_h - delta,
                                  psi_s(x, theta_s_h, phi_s_h - delta, theta_l, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)) + fi_2(
-                    i(theta_l, phi_l, theta_s_h, phi_s_h - delta), theta_s(x, theta_s_h, phi_s_h - delta),
-                    phi_s(x, theta_s_h, phi_s_h - delta),
+                psi_obs(x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)) + fi_2(x,
+                    i(theta_l, phi_l, theta_s_h, phi_s_h - delta), theta_s_h,
+                    phi_s_h - delta,
                     psi_s(x, theta_s_h, phi_s_h - delta, theta_l, phi_l)) + fiD(
                     x, i(theta_l, phi_l, theta_s_h, phi_s_h - delta)))) / (
                     2 * delta)
@@ -1566,20 +1593,20 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
         h = delta_h2_theta_l
 
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A2(i(theta_l + delta, phi_l, theta_s_h, phi_s_h),
-                                              theta_s(x, theta_s_h, phi_s_h), phi_s(x, theta_s_h, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A2(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h),
+                                              theta_s_h, phi_s_h,
                                               psi_s(x, theta_s_h, phi_s_h, theta_l + delta, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h)) + fi_2(
-                    i(theta_l + delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
+                psi_obs(x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h)) + fi_2(x,
+                    i(theta_l + delta, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                    phi_s_h,
                     psi_s(x, theta_s_h, phi_s_h, theta_l + delta, phi_l)) + fiD(
                     x, i(theta_l + delta, phi_l, theta_s_h, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A2(i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                                 phi_s(x, theta_s_h, phi_s_h),
+                3, 0.5) / 2 * A2(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                 phi_s_h,
                                  psi_s(x, theta_s_h, phi_s_h, theta_l - delta, phi_l)) * math.cos(
-                psi_obs(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)) + fi_2(
-                    i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
+                psi_obs(x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)) + fi_2(x,
+                    i(theta_l - delta, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                    phi_s_h,
                     psi_s(x, theta_s_h, phi_s_h, theta_l - delta, phi_l)) + fiD(
                     x, i(theta_l - delta, phi_l, theta_s_h, phi_s_h)))) / (
                     2 * delta)
@@ -1590,20 +1617,20 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
         h = delta_h2_phi_l
 
         def par_1(x, delta):
-            return (math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l + delta, theta_s_h, phi_s_h),
-                                              theta_s(x, theta_s_h, phi_s_h), phi_s(x, theta_s_h, phi_s_h),
+            return (math.pow(3, 0.5) / 2 * A2(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h),
+                                              theta_s_h, phi_s_h,
                                               psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l + delta)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h)) + fi_2(
-                    i(theta_l, phi_l + delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
+                psi_obs(x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h)) + fi_2(x,
+                    i(theta_l, phi_l + delta, theta_s_h, phi_s_h), theta_s_h,
+                    phi_s_h,
                     psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l + delta)) + fiD(
                     x, i(theta_l, phi_l + delta, theta_s_h, phi_s_h))) - math.pow(
-                3, 0.5) / 2 * A2(i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                                 phi_s(x, theta_s_h, phi_s_h),
+                3, 0.5) / 2 * A2(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s_h,
+                                 phi_s_h,
                                  psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l - delta)) * math.cos(
-                psi_obs(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)) + fi_2(
-                    i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s(x, theta_s_h, phi_s_h),
-                    phi_s(x, theta_s_h, phi_s_h),
+                psi_obs(x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)) + fi_2(x,
+                    i(theta_l, phi_l - delta, theta_s_h, phi_s_h), theta_s_h,
+                    phi_s_h,
                     psi_s(x, theta_s_h, phi_s_h, theta_l, phi_l - delta)) + fiD(
                     x, i(theta_l, phi_l - delta, theta_s_h, phi_s_h)))) / (
                     2 * delta)
@@ -1611,24 +1638,24 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
         return par_1(t, h)
 
     def partial_h2_K(t):
-        return math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A2(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.sin(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(
                 t, i(theta_l, phi_l, theta_s_h, phi_s_h))) * (-1) * p_P * f / c * math.sin(
             fi_t(t))
 
     def partial_h2_P(t):
-        return math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A2(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.sin(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(t, i(theta_l, phi_l,
                                                                                               theta_s_h,
@@ -1639,19 +1666,19 @@ def fisher2(p_S_n_ni, p_P, p_M_p):
             fi_t(t)))
 
     def partial_h2_phi_0(t):
-        return math.pow(3, 0.5) / 2 * A2(i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s(t, theta_s_h, phi_s_h),
-                                         phi_s(t, theta_s_h, phi_s_h),
+        return math.pow(3, 0.5) / 2 * A2(t, i(theta_l, phi_l, theta_s_h, phi_s_h), theta_s_h,
+                                         phi_s_h,
                                          psi_s(t, theta_s_h, phi_s_h, theta_l, phi_l)) * math.sin(
-            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(i(theta_l, phi_l, theta_s_h, phi_s_h),
-                                                                     theta_s(t, theta_s_h, phi_s_h),
-                                                                     phi_s(t, theta_s_h, phi_s_h),
+            psi_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) + fi_2(t, i(theta_l, phi_l, theta_s_h, phi_s_h),
+                                                                     theta_s_h,
+                                                                     phi_s_h,
                                                                      psi_s(t, theta_s_h, phi_s_h, theta_l,
                                                                            phi_l)) + fiD(
                 t, i(theta_l, phi_l, theta_s_h, phi_s_h))) * (
                 (-1) * p_P * f * K(i(theta_l, phi_l, theta_s_h, phi_s_h)) / c * math.cos(
             fi_t(t)) - 2 * math.pi * f_obs(t, i(theta_l, phi_l, theta_s_h, phi_s_h)) * R_earth * math.sin(
-            theta_s(t, theta_s_h, phi_s_h)) * math.cos(
-            phi_0 + 2 * math.pi * t / P_earth - phi_s(t, theta_s_h, phi_s_h)) / c)
+            theta_s_h) * math.cos(
+            phi_0 + 2 * math.pi * t / P_earth - phi_s_h) / c)
 
     # 将偏导映射到字典里
     X = dict()
@@ -1710,8 +1737,7 @@ def find_m_p(na, nb, nc):
     # R_x = []
     M_p_y = []
     for a in range(na):  # 循环周期
-        P = math.pow(10, a * 0.2 - 1.6) * year
-        # 误差图坐标列表
+        P = math.pow(10, a * 0.2 - 1.6) * year        # 误差图坐标列表
         b_x = []
         Re_y = []
         Re_z = []
@@ -1727,7 +1753,7 @@ def find_m_p(na, nb, nc):
                 fisher_total = fisher1(1 / s_n_tianqin, P, M_p)
                 detector = 'Tianqin'
             elif nc == 2:
-                fisher_total = fisher2(1 / s_n_taiji, P, M_p)
+                fisher_total = fisher2(1 / s_n_tianqin, P, M_p)
                 detector = 'Taiji'
             elif nc == 3:
                 fisher_total = fisher2(1 / s_n_lisa, P, M_p)
@@ -1741,10 +1767,19 @@ def find_m_p(na, nb, nc):
             elif nc == 6:
                 fisher_total = fisher2(1 / s_n_taiji, P, M_p) + fisher2(1 / s_n_lisa, P, M_p)
                 detector = 'LISA&Taiji'
-            else:
+            elif nc == 7:
                 fisher_total = fisher1(1 / s_n_tianqin, P, M_p) + fisher2(1 / s_n_taiji, P, M_p) + fisher2(1 / s_n_lisa,
                                                                                                            P, M_p)
                 detector = 'Tianqin&Taiji&LISA'
+            elif nc == 8:
+                fisher_total = fisher2(1 / s_n_decigo, P, M_p)
+                detector = 'DECIGO'
+            elif nc == 9:
+                fisher_total = fisher2(1 / s_n_bbo, P, M_p)
+                detector = 'BBO'
+            else :
+                fisher_total = fisher2(1 / s_n_decigo, P, M_p) + fisher2(1 / s_n_bbo, P, M_p)
+                detector = 'DECIGO&BBO'
 
             def var():
                 covariance = linalg.inv(fisher_total)
@@ -1760,6 +1795,7 @@ def find_m_p(na, nb, nc):
             b_x.append(b)
             Re_y.append(math.log10(Re))
             Re_z.append(Re)
+            print(Re)
 
             # 误差符合条件时加入质量周期图，并开始下一个周期计算
             if b > 0 and Re < 0.3 and Re_z[b] / Re_z[b - 1] > 0.5:
@@ -1792,4 +1828,7 @@ def find_m_p(na, nb, nc):
     return P_x, M_p_y, detector
 
 
+# P = find_m_p(na, nb, nc)[0]
+# M_p = find_m_p(na, nb, nc)[1]
+# detector = find_m_p(na, nb, nc)[2]
 print(find_m_p(p_na, p_nb, p_nc))

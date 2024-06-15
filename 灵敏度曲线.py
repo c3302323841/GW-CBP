@@ -58,7 +58,7 @@ def LISA_S_n(f):
     # S_n = 10 / 3 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
     #             1 + 6 / 10 * (f / f_xing) ** 2)+S_c
     S_n = 1 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
-                1 + 6 / 10 * (f / f_xing) ** 2)+S_c
+                1 + 6 / 10 * (f / f_xing) ** 2)
     return math.sqrt(S_n)
 
 # Taiji
@@ -77,7 +77,7 @@ def Taiji_S_n(f):
     # S_n = 10 / 3 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
     #         1 + 6 / 10 * (f / f_xing) ** 2)+S_c
     S_n = 1 / L ** 2 * (P_OMS + 2 * (1 + (math.cos(f / f_xing)) ** 2) * P_acc / (2 * math.pi * f) ** 4) * (
-            1 + 6 / 10 * (f / f_xing) ** 2)+S_c
+            1 + 6 / 10 * (f / f_xing) ** 2)
     return math.sqrt(S_n)
     # S_n = (4 * S_a * (1 + 1e-4 / f) / math.pow(2 * math.pi * f, 4) + S_x) / math.pow(L, 2)
 
@@ -102,8 +102,9 @@ LISA_S_n_y = []
 Taiji_S_n_y = []
 DECIGO_S_n_y = []
 BBO_S_n_y = []
-for i in range(15):
-    x = math.pow(10, -3 + 0.1 * i)
+
+for i in range(5):
+    x = math.pow(10, -2)
     f_x.append(x)
     TianQin_y = TianQin_S_n(x)
     TianQin_S_n_y.append(TianQin_y)
@@ -115,7 +116,25 @@ for i in range(15):
     DECIGO_S_n_y.append(DECIGO_y)
     BBO_y = BBO_S_n(x)
     BBO_S_n_y.append(BBO_y)
-
+# for i in range(101):
+#     x = 10 ** (-4 + 4 * i / 100)
+#     f_x.append(x)
+#     TianQin_y = TianQin_S_n(x)
+#     TianQin_S_n_y.append(TianQin_y)
+#     Taiji_y = Taiji_S_n(x)
+#     Taiji_S_n_y.append(Taiji_y)
+#     LISA_y = LISA_S_n(x)
+#     LISA_S_n_y.append(LISA_y)
+#     DECIGO_y = DECIGO_S_n(x)
+#     DECIGO_S_n_y.append(DECIGO_y)
+#     BBO_y = BBO_S_n(x)
+#     BBO_S_n_y.append(BBO_y)
+# print(f_x)
+# print('TianQin', TianQin_S_n_y)
+# print('Taiji', Taiji_S_n_y)
+# print('LISA', LISA_S_n_y)
+# print('DECIGO', DECIGO_S_n_y)
+# print('BBO', BBO_S_n_y)
 
 fig, ax = plt.subplots() # 创建图实例
 ax.plot(f_x, TianQin_S_n_y, marker='o', label='TianQin')
