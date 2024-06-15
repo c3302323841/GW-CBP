@@ -32,13 +32,13 @@ R_earth = 1.496e11 * L_dimension  # 地球半径
 P_earth = 31536000 * T_dimension  # 地球公转周期
 year = 31536000 * T_dimension
 # 参数设定———————————————————————————————————————————————————————————————————————————————————————————————————————
-f = 0.005 / T_dimension  # 引力波频率（10 mHz）s-1
+f = 0.01 / T_dimension  # 引力波频率（10 mHz）s-1
 T_obs = 4 * 31536000 * T_dimension  # 观测周期
 M_b = 1 * M_sun
 
 p_na = 16  # x轴的P的数量
 p_nb = 200  # 寻找最小Mp的上限
-p_nc = 4
+p_nc = 1
 # nc: tianqin is 1, taiji ji 2, lisa is 3, tianqin + taiji is 4 tianqin + lisa is 5,
 # lisa +taiji is 6, three is 7, decigo is 8, bbo is 9, two is 10
 # 常数——————————————————————————————————————————————————————————————————————————————————————————————————————————

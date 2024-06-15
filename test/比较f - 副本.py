@@ -44,7 +44,7 @@ def dg(p_f, p_T_obs, p_M_b):
 
     p_na = 1  # x轴的P的数量
     p_nb = 200  # 寻找最小Mp的上限
-    p_nc = 1
+    p_nc = 2
     # nc: tianqin is 1, taiji ji 2, lisa is 3, tianqin + taiji is 4 tianqin + lisa is 5,
     # lisa +taiji is 6, three is 7, decigo is 8, bbo is 9, two is 10
     # 常数——————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -1850,12 +1850,11 @@ def dg(p_f, p_T_obs, p_M_b):
         # R_x = []
         M_p_y = []
         for a in range(na):  # 循环周期
-            P = math.pow(10, 0.6) * year  # 误差图坐标列表
+            P = math.pow(10, -0.2) * year  # 误差图坐标列表
             b_x = []
             Re_y = []
             Re_z = []
             for b in range(nb):  # 寻找最小质量
-                print(a, b)
                 M_p = math.pow(10, (b / 100 * 3 - 1)) * M_J
                 KK = math.pow(2 * math.pi * G / P, 1 / 3) * M_p / math.pow(M_p + M_b, 2 / 3) * math.sin(math.pi / 3)
                 # R = math.pow(G * P ** 2 * (M_b + M_p) / (4 * math.pi ** 2), 1 / 3)
@@ -1863,10 +1862,10 @@ def dg(p_f, p_T_obs, p_M_b):
                 # fisher_taiji = fisher2(1 / s_n_taiji, P, M_p)
                 # fisher_lisa = fisher2(1 / s_n_lisa, P, M_p)
                 if nc == 1:
-                    fisher_total = fisher1(1 / s_n_tianqin, P, M_p)
+                    fisher_total = fisher1(1 / 1e-20, P, M_p)
                     detector = 'Tianqin'
                 elif nc == 2:
-                    fisher_total = fisher2(1 / s_n_taiji, P, M_p)
+                    fisher_total = fisher2(1 / 1e-20, P, M_p)
                     detector = 'Taiji'
                 elif nc == 3:
                     fisher_total = fisher2(1 / s_n_lisa, P, M_p)
@@ -1943,10 +1942,9 @@ def dg(p_f, p_T_obs, p_M_b):
     # P = find_m_p(na, nb, nc)[0]
     # M_p = find_m_p(na, nb, nc)[1]
     # detector = find_m_p(na, nb, nc)[2]
-    print(p_f, p_T_obs, p_M_b,find_m_p(p_na, p_nb, p_nc))
+    print(find_m_p(p_na, p_nb, p_nc))
 
 
-for x in range(4):
-    for y in range(10):
-        dg(0.005, 1 * (x + 1), 0.2 * (y + 1))
+for x in range(10):
+    dg((x + 1) * 0.001, 4, 1)
 
