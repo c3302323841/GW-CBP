@@ -143,25 +143,28 @@ def fisher1(p_S_n_ni, p_P, p_M_p):
     K = math.pow(2 * math.pi * G / p_P, 1 / 3) * p_M_p / math.pow(p_M_p + M_b, 2 / 3) * math.sin(
         i(theta_l, phi_l, theta_s_h, phi_s_h))
 
-    def F1_jia(p_theta_s, p_phi_s, p_psi_s):
-        return 0.5 * (1 + math.cos(p_theta_s) * math.cos(p_theta_s)) * math.cos(2 * p_phi_s) * math.cos(
-            2 * p_psi_s) - math.cos(
-            p_theta_s) * math.sin(2 * p_phi_s) * math.sin(2 * p_psi_s)
+    def F1_jia(t, p_theta_s, p_phi_s, p_psi_s):
+        kapa = phi_s_t(t)
+        bata1 = math.pi/2 - theta_s_t
+        theta_s0 = - 4.704 *math.pi / 180
+        phi_s0 = 120.4425*math.pi / 180
+        return (math.cos(2*p_psi_s) * math.pow(3,0.5)*(4*math.cos(2*(kapa-bata1))*((3+math.cos(2*p_phi_s))*math.sin(theta_s0)*math.sin(2*(p_phi_s-phi_s0))+2*math.sin(p_phi_s-phi_s0)*math.sin(2*p_theta_s)*math.cos(theta_s0)) -math.sin(2*(kapa-bata1))*(3+math.cos(2*(p_phi_s-phi_s0))*(9+math.cos(2*p_phi_s)*(3-math.cos(theta_s0)))+6*math.cos(2*theta_s0)*math.pow(math.sin(p_phi_s-phi_s0),2) -6*math.cos(2*p_theta_s)*math.pow(math.cos(theta_s0),2) +4*math.cos(p_phi_s-phi_s0)*math.sin(2*p_theta_s)*math.sin(2*theta_s0) ) )
+                - math.sin(2*p_psi_s) *math.pow(3,0.5)/8 *(-4+math.cos(2*(kapa-bata1))*(math.cos(2*(p_phi_s-phi_s0))*math.cos(p_theta_s)*math.sin(theta_s0)+math.cos(p_phi_s-phi_s0)*math.sin(p_theta_s)*math.cos(theta_s0))  +math.sin(2*(kapa-bata1))*(math.cos(p_theta_s)*(3-math.cos(2*theta_s0))*math.sin(2*(p_phi_s-phi_s0)) +2*math.sin(p_phi_s-phi_s0)*math.sin(p_theta_s)*math.sin(2*theta_s0))))
 
-    def F1_cha(p_theta_s, p_phi_s, p_psi_s):
-        return 0.5 * (1 + math.cos(p_theta_s) * math.cos(p_theta_s)) * math.cos(2 * p_phi_s) * math.cos(
-            2 * p_psi_s) + math.cos(
-            p_theta_s) * math.sin(2 * p_phi_s) * math.cos(2 * p_psi_s)
+    def F1_cha(t, p_theta_s, p_phi_s, p_psi_s):
+        kapa = phi_s_t(t)
+        bata1 = math.pi / 2 - theta_s_t
+        theta_s0 = - 4.704 * math.pi / 180
+        phi_s0 = 120.4425 * math.pi / 180
+        return (math.sin(2*p_psi_s) * math.pow(3,0.5)*(4*math.cos(2*(kapa-bata1))*((3+math.cos(2*p_phi_s))*math.sin(theta_s0)*math.sin(2*(p_phi_s-phi_s0))+2*math.sin(p_phi_s-phi_s0)*math.sin(2*p_theta_s)*math.cos(theta_s0)) -math.sin(2*(kapa-bata1))*(3+math.cos(2*(p_phi_s-phi_s0))*(9+math.cos(2*p_phi_s)*(3-math.cos(theta_s0)))+6*math.cos(2*theta_s0)*math.pow(math.sin(p_phi_s-phi_s0),2) -6*math.cos(2*p_theta_s)*math.pow(math.cos(theta_s0),2) +4*math.cos(p_phi_s-phi_s0)*math.sin(2*p_theta_s)*math.sin(2*theta_s0) ) )
+                - math.cos(2*p_psi_s) *math.pow(3,0.5)/8 *(-4+math.cos(2*(kapa-bata1))*(math.cos(2*(p_phi_s-phi_s0))*math.cos(p_theta_s)*math.sin(theta_s0)+math.cos(p_phi_s-phi_s0)*math.sin(p_theta_s)*math.cos(theta_s0))  +math.sin(2*(kapa-bata1))*(math.cos(p_theta_s)*(3-math.cos(2*theta_s0))*math.sin(2*(p_phi_s-phi_s0)) +2*math.sin(p_phi_s-phi_s0)*math.sin(p_theta_s)*math.sin(2*theta_s0))))
 
-    def F2_jia(p_theta_s, p_phi_s, p_psi_s):
-        return 0.5 * (1 + math.cos(p_theta_s) * math.cos(p_theta_s)) * math.cos(
-            2 * p_phi_s - 0.5 * math.pi) * math.cos(
-            2 * p_psi_s) - math.cos(p_theta_s) * math.sin(2 * p_phi_s - 0.5 * math.pi) * math.sin(2 * p_psi_s)
 
-    def F2_cha(p_theta_s, p_phi_s, p_psi_s):
-        return 0.5 * (1 + math.cos(p_theta_s) * math.cos(p_theta_s)) * math.cos(
-            2 * p_phi_s - 0.5 * math.pi) * math.cos(
-            2 * p_psi_s) + math.cos(p_theta_s) * math.sin(2 * p_phi_s - 0.5 * math.pi) * math.cos(2 * p_psi_s)
+    def F2_jia(t, p_theta_s, p_phi_s, p_psi_s):
+        return F1_jia(t, p_theta_s, p_phi_s - math.pi / 4, p_psi_s)
+
+    def F2_cha(t, p_theta_s, p_phi_s, p_psi_s):
+        return F1_cha(t, p_theta_s, p_phi_s - math.pi / 4, p_psi_s)
 
     AA = 2 * math.pow(G * M_b
                       , 5 / 3) * math.pow(math.pi * f, 2 / 3) / (math.pow(c, 4) * d)
